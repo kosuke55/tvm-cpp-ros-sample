@@ -126,17 +126,6 @@ void TrafficLightClassifierNodelet::callback(const sensor_msgs::Image::ConstPtr 
   try {
     cv_ptr = cv_bridge::toCvCopy(input_image_msg, sensor_msgs::image_encodings::RGB8);
     cv::Mat hoge = cv_ptr->image;
-    // for (int i = 0; i < 10; ++i) {
-    //   std::cout << "hoge : " << i << " " << int(hoge.at<cv::Vec3b>(i * 2, i * 2)[0]) << " "
-    //             << int(hoge.at<cv::Vec3b>(i * 2, i * 2)[1]) << " "
-    //             << int(hoge.at<cv::Vec3b>(i * 2, i * 2)[2]) << std::endl;
-    // }
-    // std::cout << "0" << std::endl;
-    // std::cout << hoge << std::endl;
-    // std_msgs::Header header = input_image_msg->header;
-
-    // pub_.publish(
-    //   cv_bridge::CvImage(header, sensor_msgs::image_encodings::RGB8, hoge).toImageMsg());
 
   } catch (cv_bridge::Exception & e) {
     NODELET_ERROR("Could not convert from '%s' to 'rgb8'.", input_image_msg->encoding.c_str());
