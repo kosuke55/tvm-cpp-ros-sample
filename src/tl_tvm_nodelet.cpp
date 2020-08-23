@@ -132,8 +132,6 @@ void TrafficLightClassifierNodelet::callback(const sensor_msgs::Image::ConstPtr 
   }
 
   getLampState(cv_ptr->image);
-
-  //   pub_.publish(input_image_msg);
 }
 
 }  // namespace tl_tvm
