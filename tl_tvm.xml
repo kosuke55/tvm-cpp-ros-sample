@@ -1,0 +1,7 @@
+<library path="lib/libtl_tvm">
+
+    <class name="tl_tvm/TrafficLightClassifierNodelet" type="tl_tvm::TrafficLightClassifierNodelet" base_class_type="nodelet::Nodelet">
+        <description>traffic light classifier nodelet</description>
+    </class>
+
+</library>
