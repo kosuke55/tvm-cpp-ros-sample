@@ -28,12 +28,14 @@ protected:
   virtual void unsubscribe();
   virtual void getLampState(const cv::Mat & input_image);
   virtual void preProcess(cv::Mat & image, float * input_tensor, bool normalize);
+  bool readLabelfile(std::string filepath, std::vector<std::string> & labels);
 
   ros::Publisher pub_;
   ros::Subscriber sub_;
   ros::NodeHandle nh_;
   ros::NodeHandle pnh_;
 
+  std::vector<std::string> labels_;
   std::vector<float> mean_{0.242, 0.193, 0.201};
   std::vector<float> std_{1.0, 1.0, 1.0};
   int input_c_;

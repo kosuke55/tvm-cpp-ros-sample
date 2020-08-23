@@ -6,6 +6,7 @@
 
     <node name="tlc" pkg="nodelet" type="nodelet" args="standalone tl_tvm/TrafficLightClassifierNodelet" output="screen">
         <remap from="~input" to="image_publisher/image_raw" />
+        <param name="label_file_path" value="$(find tl_tvm)/data/lamp_labels.txt"/>
         <param name="model_file_path" value="$(find tl_tvm)/data/mobilenetv2.so" />
         <param name="model_json_path" value="$(find tl_tvm)/data/model_graph.json" />
         <param name="model_params_path" value="$(find tl_tvm)/data/model_graph.params" />

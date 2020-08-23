@@ -13,10 +13,12 @@ void TrafficLightClassifierNodelet::onInit()
 
   TrafficLightClassifierNodelet::subscribe();
 
+  std::string label_file_path;
   std::string model_file_path;
   std::string model_json_path;
   std::string model_params_path;
 
+  pnh_.param<std::string>("label_file_path", label_file_path, "labels.txt");
   pnh_.param<std::string>("model_file_path", model_file_path, "data/mobilenetv2.so");
   pnh_.param<std::string>("model_json_path", model_json_path, "data/model_graph.json");
   pnh_.param<std::string>("model_params_path", model_params_path, "data/model_graph.params");
@@ -28,6 +30,8 @@ void TrafficLightClassifierNodelet::onInit()
   in_shape_[1] = input_c_;
   in_shape_[2] = input_h_;
   in_shape_[3] = input_w_;
+
+  readLabelfile(label_file_path, labels_);
 
   std::cout << model_file_path << std::endl;
   tvm::runtime::Module mobilenet_lib_ = tvm::runtime::Module::LoadFromFile(model_file_path);
@@ -60,6 +64,21 @@ void TrafficLightClassifierNodelet::subscribe()
 }
 
 void TrafficLightClassifierNodelet::unsubscribe() { sub_.shutdown(); }
+
+bool TrafficLightClassifierNodelet::readLabelfile(
+  std::string filepath, std::vector<std::string> & labels)
+{
+  std::ifstream labelsFile(filepath);
+  if (!labelsFile.is_open()) {
+    ROS_ERROR("Could not open label file. [%s]", filepath.c_str());
+    return false;
+  }
+  std::string label;
+  while (getline(labelsFile, label)) {
+    labels.push_back(label);
+  }
+  return true;
+}
 
 void TrafficLightClassifierNodelet::preProcess(
   cv::Mat & image, float * input_tensor, bool normalize)
@@ -114,11 +133,19 @@ void TrafficLightClassifierNodelet::getLampState(const cv::Mat & input_image)
   tvm::runtime::PackedFunc get_output = mod->GetFunction("get_output");
 
   get_output(0, y);
-  printf("\ninference result\n----------\n");
+  printf("\noutput\n----------\n");
 
+  float max_label = -100;
+  int max_label_id = 0;
   for (int i = 0; i < 6; ++i) {
-    std::cout << static_cast<float *>(y->data)[i] << std::endl;
+    if (static_cast<float *>(y->data)[i] > max_label) {
+      max_label = static_cast<float *>(y->data)[i];
+      max_label_id = i;
+    }
+    std::cout << labels_[i] << ": " << static_cast<float *>(y->data)[i] << std::endl;
   }
+  printf("----------\n");
+  std::cout << "result: " << labels_[max_label_id] << std::endl;
 
   TVMArrayFree(x);
   TVMArrayFree(y);
