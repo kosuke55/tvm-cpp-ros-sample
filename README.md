@@ -1,4 +1,9 @@
-# tl_tvm
+# traffic light classifier tvm ros
+
+set TVM_ROOT in CMakeLists
+```
+set(TVM_ROOT /home/kosuke/tvm)
+```
 
 ```
 inference result
