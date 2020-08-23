@@ -1,0 +1,6 @@
+red
+green
+yellow
+red,right
+left,red,straight
+red,straight

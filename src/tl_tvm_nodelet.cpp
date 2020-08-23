@@ -141,7 +141,7 @@ void TrafficLightClassifierNodelet::callback(const sensor_msgs::Image::ConstPtr 
 
   getLampState(cv_ptr->image);
 
-  end = std::chrono::system_clock::now();  // 計測終了時間
+  end = std::chrono::system_clock::now();
   double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   printf("time %lf[ms]\n", elapsed);
