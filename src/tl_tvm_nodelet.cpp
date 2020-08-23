@@ -1,5 +1,6 @@
 #include "tl_tvm/tl_tvm_nodelet.h"
 #include <stdio.h>
+#include <chrono>
 #include <fstream>
 
 namespace tl_tvm
@@ -113,7 +114,7 @@ void TrafficLightClassifierNodelet::getLampState(const cv::Mat & input_image)
   tvm::runtime::PackedFunc get_output = mod->GetFunction("get_output");
 
   get_output(0, y);
-  printf("inference result\n----------\n");
+  printf("\ninference result\n----------\n");
 
   for (int i = 0; i < 6; ++i) {
     std::cout << static_cast<float *>(y->data)[i] << std::endl;
@@ -125,6 +126,9 @@ void TrafficLightClassifierNodelet::getLampState(const cv::Mat & input_image)
 
 void TrafficLightClassifierNodelet::callback(const sensor_msgs::Image::ConstPtr & input_image_msg)
 {
+  std::chrono::system_clock::time_point start, end;
+  start = std::chrono::system_clock::now();
+
   cv_bridge::CvImagePtr cv_ptr;
 
   try {
@@ -136,6 +140,11 @@ void TrafficLightClassifierNodelet::callback(const sensor_msgs::Image::ConstPtr 
   }
 
   getLampState(cv_ptr->image);
+
+  end = std::chrono::system_clock::now();  // 計測終了時間
+  double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+  printf("time %lf[ms]\n", elapsed);
 }
 
 }  // namespace tl_tvm
