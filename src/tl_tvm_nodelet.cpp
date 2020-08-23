@@ -41,10 +41,11 @@ void TrafficLightClassifierNodelet::onInit()
   params_arr.data = params_data.c_str();
   params_arr.size = params_data.length();
 
-  mod_ = (*tvm::runtime::Registry::Get("tvm.graph_runtime.create"))(
+  tvm::runtime::Module mod = (*tvm::runtime::Registry::Get("tvm.graph_runtime.create"))(
     json_data, mobilenet_lib_, device_gpu_, device_gpu_id_);
+  this->handle_ = new tvm::runtime::Module(mod);
 
-  tvm::runtime::PackedFunc load_params = mod_.GetFunction("load_params");
+  tvm::runtime::PackedFunc load_params = mod.GetFunction("load_params");
   load_params(params_arr);
 }
 
@@ -58,27 +59,7 @@ void TrafficLightClassifierNodelet::unsubscribe() { sub_.shutdown(); }
 void TrafficLightClassifierNodelet::preProcess(
   cv::Mat & image, float * input_tensor, bool normalize)
 {
-  // -0.062811
-  // 1.1568
-  // 0.766943
-  // 2.46797
-  // -1.6485
-  // -2.97516
-
-  //   for (int i = 0; i < 10; ++i) {
-  //     std::cout << "image  : " << i << " " << int(image.at<cv::Vec3b>(i * 2, i * 2)[0]) << " "
-  //               << int(image.at<cv::Vec3b>(i * 2, i * 2)[1]) << " "
-  //               << int(image.at<cv::Vec3b>(i * 2, i * 2)[2]) << std::endl;
-  //   }
-
-  cv::cvtColor(image, image, cv::COLOR_BGR2RGB, 3);
-
-  //   for (int i = 0; i < 10; ++i) {
-  //     std::cout << "image c : " << i << " " << int(image.at<cv::Vec3b>(i * 2, i * 2)[0]) << " "
-  //               << int(image.at<cv::Vec3b>(i * 2, i * 2)[1]) << " "
-  //               << int(image.at<cv::Vec3b>(i * 2, i * 2)[2]) << std::endl;
-  //   }
-
+  // cv::cvtColor(image, image, cv::COLOR_BGR2RGB, 3);
   cv::resize(image, image, cv::Size(input_w_, input_h_));
 
   const size_t strides_cv[3] = {static_cast<size_t>(input_w_ * input_c_),
@@ -107,39 +88,26 @@ void TrafficLightClassifierNodelet::getLampState(const cv::Mat & input_image)
   DLTensor * y;
 
   float * input_data = (float *)malloc(input_w_ * input_h_ * input_c_ * sizeof(float));
-//   cv::Mat image = input_image.clone();
-  //   std::cout << image.size() << std::endl;
-//   std::cout << "image at 18: " << int(image.at<cv::Vec3b>(18, 18)[0]) << " "
-//             << int(image.at<cv::Vec3b>(18, 18)[1]) << " " << int(image.at<cv::Vec3b>(18, 18)[2])
-//             << " " << std::endl;
-            
-cv::Mat image = cv::imread("/home/kosuke/ros/autoware_ws/src/tl_tvm/images/nishishinjuku_n1_2020-06-03-13-48-46000020-0.jpg", 1);
-  
-
-
-    preProcess(image, input_data, true);
-  x->data = input_data;
-  
-
+  cv::Mat image = input_image.clone();
 
   TVMArrayAlloc(
     in_shape_, in_ndim_, dtype_code_, dtype_bits_, dtype_lanes_, device_cpu_, device_cpu_id_, &x);
+  x->data = input_data;
+  preProcess(image, input_data, true);
 
-
-  tvm::runtime::PackedFunc set_input = mod_.GetFunction("set_input");
+  tvm::runtime::Module * mod = (tvm::runtime::Module *)handle_;
+  tvm::runtime::PackedFunc set_input = mod->GetFunction("set_input");
 
   set_input("input", x);
 
   TVMArrayAlloc(
     out_shape_, out_ndim_, dtype_code_, dtype_bits_, dtype_lanes_, device_cpu_, device_cpu_id_, &y);
 
-
-  tvm::runtime::PackedFunc run = mod_.GetFunction("run");
-
+  tvm::runtime::PackedFunc run = mod->GetFunction("run");
   run();
 
-  tvm::runtime::PackedFunc get_output = mod_.GetFunction("get_output");
-  
+  tvm::runtime::PackedFunc get_output = mod->GetFunction("get_output");
+
   get_output(0, y);
   printf("inference result\n----------\n");
 

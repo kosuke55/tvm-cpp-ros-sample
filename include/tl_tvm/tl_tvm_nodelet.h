@@ -35,9 +35,9 @@ protected:
   ros::NodeHandle pnh_;
 
   // tvm
-  tvm::runtime::Module mod_;
-//   DLTensor * x_;
-//   DLTensor * y_;
+  // tvm::runtime::Module mod_;
+  //   DLTensor * x_;
+  //   DLTensor * y_;
 
   std::vector<float> mean_{0.242, 0.193, 0.201};
   std::vector<float> std_{1.0, 1.0, 1.0};
@@ -63,6 +63,7 @@ protected:
   };
 
 private:
+  void * handle_;
 };
 
 }  // namespace tl_tvm
