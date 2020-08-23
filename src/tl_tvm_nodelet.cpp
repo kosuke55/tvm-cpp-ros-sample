@@ -23,6 +23,10 @@ void TrafficLightClassifierNodelet::onInit()
   pnh_.param<int>("input_c", input_c_, 3);
   pnh_.param<int>("input_h", input_h_, 224);
   pnh_.param<int>("input_w", input_w_, 224);
+  in_shape_[0] = 1;
+  in_shape_[1] = input_c_;
+  in_shape_[2] = input_h_;
+  in_shape_[3] = input_w_;
 
   std::cout << model_file_path << std::endl;
   tvm::runtime::Module mobilenet_lib_ = tvm::runtime::Module::LoadFromFile(model_file_path);

@@ -34,11 +34,6 @@ protected:
   ros::NodeHandle nh_;
   ros::NodeHandle pnh_;
 
-  // tvm
-  // tvm::runtime::Module mod_;
-  //   DLTensor * x_;
-  //   DLTensor * y_;
-
   std::vector<float> mean_{0.242, 0.193, 0.201};
   std::vector<float> std_{1.0, 1.0, 1.0};
   int input_c_;
@@ -46,8 +41,8 @@ protected:
   int input_w_;
 
   int in_ndim_ = 4;
-  //   int64_t in_shape_[4] = {1, input_c_, input_h_, input_w_};
-  int64_t in_shape_[4] = {1, 3, 224, 224};
+  int64_t in_shape_[4];
+
   int nbytes_float32_ = 4;
   int dtype_code_ = kDLFloat;
   int dtype_bits_ = 32;
