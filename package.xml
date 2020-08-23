@@ -22,8 +22,6 @@
   <exec_depend>roscpp</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
 
-
-
   <export>
     <nodelet plugin="${prefix}/tl_tvm.xml" />
   </export>
